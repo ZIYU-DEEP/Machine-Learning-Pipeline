@@ -114,6 +114,7 @@ def fill_null(data):
         data[i] = data[i].fillna(0)
     return data
 
+
 def temporal_split(data, var, test_length, gap):
     """
     Split the data into several train and test pairs with fixed-length test sets
@@ -157,8 +158,7 @@ def temporal_split(data, var, test_length, gap):
            "observations of the last '%s' cannot be used for either "
            "training or testing.") % (test_length, gap, gap))
     print(("Print the start and end date for each of the %s pairs of "
-           "training and test sets to verify the split works.\n") %
-           len(pairs))
+           "training and test sets to verify the split works.\n") % len(pairs))
     for i, (train, test) in enumerate(pairs):
         messages = ["<TRAINING-TEST PAIR %s>" % i,
                     "<TRAINING SET TIME RANGE> %s - %s" %

@@ -8,6 +8,7 @@ Author: Yeol Ye, University of Chicago
 import graphviz
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
 
 from sklearn import svm
 from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier, \
@@ -246,7 +247,8 @@ def clfs_loop(models, clfs, grid, X_train, X_test, y_train, y_test,
         plot: (bool) True if show plots, False otherwise
 
     Returns:
-        results_df: (DataFrame) a table with results including performance metrics
+        results_df: (DataFrame) a table with results including performance
+                    metrics
     """
     results_df = pd.DataFrame(
         columns=('model_type', 'clf', 'parameters', 'auc-roc',
@@ -290,8 +292,8 @@ def clfs_loop_temporal(train_sets, test_sets, target, models, clfs, grid,
     This function is adapted from https://github.com/rayidghani/magicloops.
 
     Inputs:
-        train_sets: (list of Series) the list of data to train across different time
-        test_sets: (list of Series) the list of data to test across different time
+        train_sets: (list of Series) list of data to train across different time
+        test_sets: (list of Series) list of data to test across different time
         target: (string) the column name of the target
         models: (list) the name of models
         clfs: (list) list of sklearn models

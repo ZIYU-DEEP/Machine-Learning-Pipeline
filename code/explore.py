@@ -97,7 +97,7 @@ def pair_plot(data, target_name):
     Returns:
         None
     """
-    sns.pairplot(data, size=3, hue=target_name, palette='husl')
+    sns.pairplot(data, height=3, hue=target_name, palette='husl')
 
 
 # *******************************************************************
