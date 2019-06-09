@@ -9,7 +9,8 @@ import re
 import pandas as pd
 import numpy as np
 
-from sklearn.preprocessing import OrdinalEncoder
+from sklearn.preprocessing import OrdinalEncoder, StandardScaler
+from sklearn.externals import joblib
 
 
 # *******************************************************************
@@ -304,3 +305,67 @@ def compare_train_test(data, train_features):
               % (var, i))
 
     return data
+
+
+def scale(X, test, batch, input_dir):
+    """
+    Fit and transform the scaler on the training data and return the
+    scaler data to scale test data.
+
+    Returns:
+        (self) pipeline with scaled data. The fitted scaler dumped to
+            "../data/"
+
+    """
+    print("\n")
+    dir_path = input_dir + ("Batch %s/" % batch)
+
+    if not test:
+        scaler = StandardScaler()
+        scaler.fit(X.values.astype(float))
+        joblib.dump(scaler, dir_path + 'fitted_scaler.pkl')
+        print(("<Training data preprocessing> Fitted scaler dumped "
+                "to '%s' under directory '%s'.") % ('fitted_scaler.pkl', dir_path))
+    else:
+        scaler = joblib.load(dir_path + 'fitted_scaler.pkl')
+        print("<BATCH %s: Test data preprocessing> Pre-fitted scaler loaded." % batch)
+
+    print("Finished scaling the feature matrix.")
+    return scaler.transform(X.values.astype(float))
+
+
+def save_data(data, test, batch, output_dir):
+    """
+    Saves the feature matrix and target as numpy arrays in the output
+    directory.
+
+    """
+    X, y = data
+
+    if test:
+        extension = "_test.npy"
+        print("<TEST SET SHAPE> n: %s, m: %s" % X.shape)
+    else:
+        extension = "_train.npy"
+        print("<TRAINING SET SHAPE> n: %s, m: %s\n" % X.shape)
+    dir_path = output_dir + ("Batch %s/" % batch)
+
+    np.save(dir_path + "X" + extension, X)
+    np.save(dir_path + "y" + extension, y.values.astype(float))
+
+    print(("\n\nSaved the resulting NumPy matrices to directory '%s'. "
+           "Features are in 'X%s' and target is in 'y%s'.") % (dir_path,
+                                                               extension,
+                                                               extension))
+
+
+def read_feature_names(dir_path, file_name):
+    """
+    Read .txt files with only one line as feature names separated by ",". Save
+    the output to a list of feature names.
+
+    Returns:
+        (list of strings) list of feature names.
+    """
+    with open(dir_path + file_name, 'r') as handle:
+        return np.array(handle.readline().split(","))
