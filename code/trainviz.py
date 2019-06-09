@@ -1,9 +1,7 @@
 """
-Summary:     A collections of functions for visualization.
-
-Description: contains a function that reads data and data types, and many
-             other functions for visualization
-Author:      Kunyu He, CAPP'20
+Title: trainviz.py
+Description: Visualization for the training.
+Author: Yeol Ye, University of Chicago
 """
 
 import os

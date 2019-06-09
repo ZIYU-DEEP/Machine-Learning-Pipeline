@@ -1,10 +1,7 @@
 """
-Title:       Build a training pipeline that helps user fit models, tune
-             hyperparameters, evaluate best models and save results.
-
-Description:
-
-Author:      Kunyu He, CAPP'20, The University of Chicago
+Title: train.py
+Description: The training process.
+Author: Yeol Ye, University of Chicago
 """
 
 import warnings
