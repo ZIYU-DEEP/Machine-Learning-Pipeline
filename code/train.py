@@ -176,6 +176,34 @@ class Precision:
         return precision_score(y_val, labels)
 
 
+class Recall:
+
+    def __init__(self, k):
+        self.k = k
+        self.name = "Recall at {}%".format(k)
+
+    def recall_at_k(self, y_val, predicted_prob):
+        """
+        Predict based on predicted probabilities and population threshold k,
+        where k is the percentage of population at the highest probabilities to
+        be classified as "positive". Label those with predicted probabilities
+        higher than (1- k/100) quantile as positive, and evaluate the precision.
+
+        Inputs:
+            - predicted_prob (array): predicted probabilities on the validation
+                set.
+            - y_val (array): of true labels.
+
+        Returns:
+            (float) precision score of our model at population threshold k.
+
+        """
+        cut_off = np.quantile(predicted_prob, (1 - self.k / 100.0))
+        labels = [1 if prob >= cut_off else 0 for prob in predicted_prob]
+
+        return recall_score(y_val, labels)
+
+
 class ModelingPipeline:
     """
     Modeling pipeline for build machine learning models on preprocessed training
@@ -203,6 +231,8 @@ class ModelingPipeline:
     for k in POPULATION_THRESHOLDS:
         METRICS.append(Precision(k).precision_at_k)
         METRICS_NAMES.append(Precision(k).name)
+        METRICS.append(Recall(k).recall_at_k)
+        METRICS_NAMES.append(Recall(k).name)
 
     SEED = 123
 
