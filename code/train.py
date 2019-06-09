@@ -37,10 +37,10 @@ from trainviz import (plot_predicted_scores, plot_precision_recall,
 RAW_DATA_DIR = "../data/"
 INPUT_DIR = "../data/processed_data/"
 OUTPUT_DIR = "../evaluations/"
-LOG_DIR = "../logs/train/logs/"
-PREDICTED_PROBS_DIR = "../logs/train/predicted_probas/"
-PREDICTIONS_DIR = "../logs/train/predictions/"
-VIZ_DIR = "../logs/train/viz/"
+LOG_DIR = "../logs/logs/"
+PREDICTED_PROBS_DIR = "../logs/predicted_prob/"
+PREDICTIONS_DIR = "../logs/predictions/"
+VIZ_DIR = "../logs/viz/"
 
 # logging
 logger = logging.getLogger('train')
@@ -77,10 +77,6 @@ def load_features(dir_path, labeled_test=False):
     else:
         y_test = None
 
-    messages = read_feature_names(dir_path, "time_window.txt")
-    for message in messages:
-        logger.info(message)
-    logger.info("\n")
     return X_train, X_test, y_train, y_test
 
 
