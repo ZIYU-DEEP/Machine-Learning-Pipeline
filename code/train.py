@@ -255,22 +255,26 @@ class ModelingPipeline:
         },
 
         "Bagging": {
+            'n_estimators': [100, 300, 500, 700, 1000],
             'max_samples': [0.05, 0.1, 0.3, 0.5, 0.7, 1.0],
             'max_features': None
         },
 
         "Ada Boosting": {
+            'n_estimators': [100, 300, 500, 700, 1000],
             'algorithm': {"SAMME", "SAMME.R"},
             'learning_rate': [0.001, 0.01, 0.1, 0.5, 1, 10]
         },
 
         "Gradient Boosting": {
+            'n_estimators': [100, 300, 500, 700, 1000],
             'learning_rate': [0.001, 0.01, 0.1, 1],
             'subsample': [0.05, 0.1, 0.3, 0.5, 0.7, 1.0],
             'max_depth': [5, 10, 15, 20]
         },
 
         "Extra Tree": {
+            'n_estimators': [100, 300, 500, 700, 1000],
             'min_samples_split': np.arange(0.01, 0.11, 0.03),
             'max_depth': [5, 10, 15, 20],
             'max_features': None
@@ -292,15 +296,14 @@ class ModelingPipeline:
 
     DEFAULT_ARGS = {"Logistic Regression": {'random_state': SEED},
                     "Decision Tree": {'random_state': SEED},
-                    "Random Forest": {'n_estimators': 1000,
-                                      'random_state': SEED,
+                    "Random Forest": {'random_state': SEED,
                                       'oob_score': True, 'n_jobs': -1},
-                    "Bagging": {'n_estimators': 500, 'random_state': SEED,
-                                'oob_score': True, 'n_jobs': -1},
-                    "Ada Boosting": {'n_estimators': 100, 'random_state': SEED},
-                    "Gradient Boosting": {'n_estimators': 100,
-                                          'random_state': SEED},
-                    "Extra Tree": {'n_estimators': 1000, 'random_state': SEED,
+                    "Bagging": {'random_state': SEED,
+                                'oob_score': True,
+                                'n_jobs': -1},
+                    "Ada Boosting": {'random_state': SEED},
+                    "Gradient Boosting": {'random_state': SEED},
+                    "Extra Tree": {'random_state': SEED,
                                    'n_jobs': -1},
                     "Naive Bayes": {},
                     "KNN": {'n_jobs': -1},

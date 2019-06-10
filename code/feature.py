@@ -194,6 +194,7 @@ def con_fill_na(data, fill_con):
 
     return data
 
+
 def str_fill_na(data, to_fill_obj):
     """
     Fill in missing data with desired string entry.
