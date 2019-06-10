@@ -127,7 +127,7 @@ def ask(names, message):
         return ask(names, message)
 
 
-class Metrics:
+class MetricsK:
     """
     Constructed with given relative population threshold k to calculate
     corresponding metrics at k.
@@ -168,7 +168,8 @@ class Metrics:
         sorted_prob, sorted_y_val = predicted_prob[idx], y_val[idx]
 
         cutoff_index = int(len(sorted_prob) * (self.k / 100.0))
-        predictions_at_k = [1 if x < cutoff_index else 0 for x in range(len(sorted_prob))]
+        predictions_at_k = [1 if x < cutoff_index else 0 for x in
+                            range(len(sorted_prob))]
 
         metrics = self.METRICS_DICT[self.metrics_name]
         if self.metrics_name == "roc_auc":
@@ -197,9 +198,9 @@ class ModelingPipeline:
     BASE_METRICS = ["accuracy", "precision", "recall", "f1", "roc_auc"]
 
     METRICS = []
-    for k in THRESHOLDS:
-        for m in BASE_METRICS:
-            METRICS.append(METRICS(m, k))
+    for m in BASE_METRICS:
+        for k in THRESHOLDS:
+            METRICS.append(MetricsK(m, k))
     METRICS_NAMES = [m.name for m in METRICS]
 
     SEED = 123
@@ -217,7 +218,7 @@ class ModelingPipeline:
         },
 
         "Random Forest": {
-            'n_estimators' : [100, 300, 500, 700, 1000],
+            'n_estimators': [100, 300, 500, 700, 1000],
             'max_depth': [5, 10, 15, 20],
             'max_features': None
         },
@@ -265,7 +266,8 @@ class ModelingPipeline:
     DEFAULT_ARGS = {"Logistic Regression": {'random_state': SEED},
                     "Decision Tree": {'random_state': SEED},
                     "Random Forest": {'random_state': SEED,
-                                      'oob_score': True, 'n_jobs': -1},
+                                      'oob_score': True,
+                                      'n_jobs': -1},
                     "Bagging": {'random_state': SEED,
                                 'oob_score': True,
                                 'n_jobs': -1},
@@ -329,7 +331,7 @@ class ModelingPipeline:
         self.clf = None
         self.skf = StratifiedKFold(n_splits=self.cv, random_state=self.SEED,
                                    shuffle=True)
-        self.model_scores = [None] * len(self.METRICS)
+        self.model_cv_scores = None
 
         logger.info(("\t%s-fold cross-validation generator set up with "
                      "random seed '%s'.") % (self.cv, self.SEED))
@@ -366,7 +368,7 @@ class ModelingPipeline:
 
         # Set up model with default arguments and clear score array
         self.clf = self.MODELS[model_index](**self.default_args)
-        self.model_scores = [None] * len(self.METRICS)
+        self.model_cv_scores = [[None] * len(self.METRICS)] * len(self.hyper_grids)
 
     def configure_metrics(self, metrics_index):
         """
@@ -383,7 +385,7 @@ class ModelingPipeline:
                     (self.batch, self.metrics_name.title()))
 
         # Set up the metrics
-        self.metrics = self.METRICS[metrics_index]
+        self.metrics = self.METRICS[metrics_index].metrics_at_k
 
     def save_prob(self, predicted_prob, file_path):
         """
@@ -419,8 +421,9 @@ class ModelingPipeline:
 
         if not self.benchmark_scores[self.metrics_index]:
             predicted_prob = self.benchmark.predict_proba(self.X_test)[:, 1]
-            self.benchmark_scores[self.metrics_index] = self.metrics(self.y_test,
-                                                                     predicted_prob)
+            self.benchmark_scores[self.metrics_index] = self.metrics(
+                self.y_test,
+                predicted_prob)
 
         logger.info(("\t %s of the benchmark default Decision Tree model "
                      "is %4.3f.") % (self.metrics_name.title(),
@@ -518,32 +521,36 @@ class ModelingPipeline:
         for hyper_grid in self.hyper_grids:
             hyper_params = dict(zip(self.hyper_args, hyper_grid))
 
-            if not self.model_scores[self.metrics_index]:
+            if not self.model_cv_scores[self.hyper_grid_index][self.metrics_index]:
                 predicted_prob = self.get_predicted_prob(hyper_params)
+
                 if not isinstance(predicted_prob, np.ndarray):
                     if self.verbose >= 1:
-                        logger.info(("\tSet %s --- (Parameters: %s) HYPERPARAMETER "
-                                     "SET NOT ALLOWED OR MODEL CANNOT CONVERGE. "
-                                     "ABORTED.") % (self.hyper_grid_index,
-                                                    hyper_params))
+                        logger.info(
+                            ("\tSet %s --- (Parameters: %s) HYPERPARAMETER "
+                             "SET NOT ALLOWED OR MODEL CANNOT CONVERGE. "
+                             "ABORTED.") % (self.hyper_grid_index,
+                                            hyper_params))
+
                     self.hyper_grid_index += 1
                     continue
 
                 score = self.metrics(self.y_train, predicted_prob)
-                self.model_scores[self.metrics_index] = score
+                self.model_cv_scores[self.hyper_grid_index][self.metrics_index] = score
             else:
-                score = self.model_scores[self.metrics_index]
+                score = self.model_cv_scores[self.hyper_grid_index][self.metrics_index]
 
             if self.verbose >= 1:
                 logger.info(("\tSet %s --- (Parameters: %s) Cross-validation %s"
-                             " of %4.4f.") % (self.hyper_grid_index, hyper_params,
-                             self.metrics_name, score))
+                             " of %4.4f.") % (
+                            self.hyper_grid_index, hyper_params,
+                            self.metrics_name, score))
 
             if score >= best_score:
                 if score > best_score:
                     best_config = []
                 best_score = score
-                best_config.append((self.hyper_grid_index, ))
+                best_config.append((hyper_grid, self.hyper_grid_index))
 
             self.hyper_grid_index += 1
 
@@ -657,37 +664,19 @@ class ModelingPipeline:
         file_name = "Batch %s - Evaluations.csv" % self.batch
         data = self.create_eval_report(dir_path, file_name)
 
-        for hyper_grid, (set_index, thresholds) in best_config.items():
+        for hyper_grid, set_index in best_config:
             self.hyper_grid_index = set_index
             hyper_params = dict(zip(self.hyper_args, hyper_grid))
             self.clf.set_params(**hyper_params)
 
             tr_time, ts_time, predicted_prob = self.predict()
-            if predicted_prob is None:
-                continue
-
             if self.plot:
                 self.plot_model(predicted_prob)
-
             temp = [self.model_index, self.model_name, self.hyper_grid_index,
                     hyper_params, tr_time, ts_time]
-            test_thresholds, _ = self.find_best_thresholds(predicted_prob,
-                                                           thresholds,
-                                                           self.y_test)
-            for k in test_thresholds:
-                line = temp[:] + [k]
-                labels = [1 if prob >= k else 0 for prob in predicted_prob]
-                for i, metrics in enumerate(self.METRICS):
-                    if self.METRICS_NAMES[i].startswith("Precision at"):
-                        line.append(metrics(self.y_test, predicted_prob))
-                    else:
-                        line.append(metrics(self.y_test, labels))
-                data.loc[len(data), :] = line
-            if self.metrics_name in ["precision", "recall"]:
-                if self.verbose >= 1:
-                    logger.info(("Precision or Recall. No need for further "
-                                 "evaluations. ABORTED."))
-                break
+            line = temp + [metrics.metrics_at_k(self.y_test, predicted_prob)
+                           for metrics in self.METRICS]
+            data.loc[len(data), :] = line
 
         data.to_csv(dir_path + file_name, index=False)
         self.hyper_grid_index = 0

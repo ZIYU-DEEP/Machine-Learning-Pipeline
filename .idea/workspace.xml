@@ -3,9 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="22d02e71-53d6-43b1-abcc-e08356c90195" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/code/feature.py" beforeDir="false" afterPath="$PROJECT_DIR$/code/feature.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/code/train.py" beforeDir="false" afterPath="$PROJECT_DIR$/code/train.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebook/Pipeline Implementation.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/notebook/Pipeline Implementation.ipynb" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -51,8 +49,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/code/train.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="3008">
-              <caret line="305" column="35" selection-start-line="305" selection-start-column="35" selection-end-line="305" selection-end-column="35" />
+            <state relative-caret-position="-80">
+              <caret line="703" lean-forward="true" selection-start-line="703" selection-end-line="703" />
             </state>
           </provider>
         </entry>
@@ -273,8 +271,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/code/train.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="3008">
-          <caret line="305" column="35" selection-start-line="305" selection-start-column="35" selection-end-line="305" selection-end-column="35" />
+        <state relative-caret-position="-80">
+          <caret line="703" lean-forward="true" selection-start-line="703" selection-end-line="703" />
         </state>
       </provider>
     </entry>
